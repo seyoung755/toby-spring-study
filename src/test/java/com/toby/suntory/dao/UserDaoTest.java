@@ -4,6 +4,7 @@ import com.toby.suntory.user.dao.DaoFactory;
 import com.toby.suntory.user.dao.JdbcContext;
 import com.toby.suntory.user.dao.UserDao;
 import com.toby.suntory.user.dao.UserDaoJdbc;
+import com.toby.suntory.user.domain.Level;
 import com.toby.suntory.user.domain.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +37,10 @@ class UserDaoTest {
 
     @BeforeEach
     void setUp() {
-        user1 = new User("user1", "유저1", "pw1");
-        user2 = new User("user2", "유저2", "pw2");
-        user3 = new User("user3", "유저3", "pw3");
-        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost:3306/test", "root", "elql1004", true);
+        user1 = new User("user1", "유저1", "pw1", Level.BASIC, 1, 0);
+        user2 = new User("user2", "유저2", "pw2", Level.SILVER, 55, 10);
+        user3 = new User("user3", "유저3", "pw3", Level.GOLD, 100, 40);
+        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost:3306/toby", "suntory", "tksxhfl", true);
         dao = new UserDaoJdbc(dataSource);
     }
 
@@ -51,10 +52,11 @@ class UserDaoTest {
         dao.add(user2);
         assertThat(dao.getCount()).isEqualTo(2);
 
-        User userget2 = dao.get(user2.getId());
+        User userget1 = dao.get(user1.getId());
+        checkSameUser(userget1, user1);
 
-        assertThat(user2.getName()).isEqualTo(user2.getName());
-        assertThat(user2.getPassword()).isEqualTo(user2.getPassword());
+        User userget2 = dao.get(user2.getId());
+        checkSameUser(userget2, user2);
     }
 
     @Test
@@ -105,6 +107,9 @@ class UserDaoTest {
         assertThat(user1.getId()).isEqualTo(user2.getId());
         assertThat(user1.getName()).isEqualTo(user2.getName());
         assertThat(user1.getPassword()).isEqualTo(user2.getPassword());
+        assertThat(user1.getLevel()).isEqualTo(user2.getLevel());
+        assertThat(user1.getLogin()).isEqualTo(user2.getLogin());
+        assertThat(user1.getRecommend()).isEqualTo(user2.getRecommend());
     }
 
     @AfterEach
