@@ -1,7 +1,6 @@
 package com.toby.suntory.dao;
 
 import com.toby.suntory.user.dao.DaoFactory;
-import com.toby.suntory.user.dao.JdbcContext;
 import com.toby.suntory.user.dao.UserDao;
 import com.toby.suntory.user.dao.UserDaoJdbc;
 import com.toby.suntory.user.domain.Level;
@@ -101,6 +100,27 @@ class UserDaoTest {
         checkSameUser(user1, users3.get(0));
         checkSameUser(user2, users3.get(1));
         checkSameUser(user3, users3.get(2));
+    }
+
+    @Test
+    void update() {
+        dao.deleteAll();
+
+        dao.add(user1);
+        dao.add(user2); // 수정하지 않을 사용자
+
+        user1.setName("오민규");
+        user1.setPassword("springno6");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+
+        dao.update(user1);
+
+        User user1update = dao.get(user1.getId());
+        checkSameUser(user1, user1update);
+        User user2same = dao.get(user2.getId());
+        checkSameUser(user2, user2same);
     }
 
     private void checkSameUser(User user1, User user2) {
