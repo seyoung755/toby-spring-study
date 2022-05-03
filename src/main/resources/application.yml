@@ -1,0 +1,5 @@
+spring:
+  sql:
+    init:
+      data-locations: classpath:sql/user/ddl.sql
+      mode: always
