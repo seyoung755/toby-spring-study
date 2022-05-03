@@ -51,4 +51,13 @@ public class UserDaoJdbc implements UserDao {
         return jdbcTemplate.query("select * from user order by id",
                 this.userMapper);
     }
+
+    @Override
+    public void update(User user) {
+        jdbcTemplate.update(
+                "update user set name = ?, password = ?, level = ?, login = ?, " +
+                        "recommend = ? where id = ? ",
+                user.getName(), user.getPassword(), user.getLevel().getValue(),
+                user.getLogin(), user.getRecommend(), user.getId());
+    }
 }
