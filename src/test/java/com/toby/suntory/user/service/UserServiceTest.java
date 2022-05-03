@@ -8,15 +8,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 @SpringBootTest
 class UserServiceTest {
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserLevelUpgradePolicy userLevelUpgradePolicy;
+
+    @Autowired
+    DataSource dataSource;
 
     @Autowired
     UserDao userDao;
@@ -40,7 +49,7 @@ class UserServiceTest {
     }
 
     @Test
-    void upgradeLevels() {
+    void upgradeLevels() throws SQLException {
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -81,4 +90,47 @@ class UserServiceTest {
             assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
         }
     }
+
+    @Test
+    void upgradeAllOrNothing() {
+        UserService testUserService = new TestUserService(users.get(3).getId());
+        testUserService.setUserDao(userDao);
+        testUserService.setUserLevelUpgradePolicy(userLevelUpgradePolicy);
+        testUserService.setDataSource(this.dataSource);
+
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+        try {
+            testUserService.upgradeLevels();
+            fail("TestUserServiceException expeceted");
+        } catch (TestUserServiceException | SQLException e) {
+
+        }
+        checkLevelUpgraded(users.get(1), false);
+    }
+
+    static class TestUserService extends UserService {
+        private String id;
+
+        private TestUserService(String id) {
+            super();
+            this.id = id;
+        }
+
+        @Override
+        protected void upgradeLevel(User user) {
+            if (user.getId().equals(this.id)) {
+                throw new TestUserServiceException();
+            }
+            super.upgradeLevel(user);
+        }
+    }
+
+    static class TestUserServiceException extends RuntimeException {
+
+    }
+
 }
