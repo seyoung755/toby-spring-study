@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -29,6 +31,9 @@ class UserServiceTest {
 
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
     List<User> users;
 
@@ -96,7 +101,7 @@ class UserServiceTest {
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(userDao);
         testUserService.setUserLevelUpgradePolicy(userLevelUpgradePolicy);
-        testUserService.setDataSource(this.dataSource);
+        testUserService.setTransactionManager(transactionManager);
 
         userDao.deleteAll();
         for (User user : users) {
@@ -106,7 +111,7 @@ class UserServiceTest {
         try {
             testUserService.upgradeLevels();
             fail("TestUserServiceException expeceted");
-        } catch (TestUserServiceException | SQLException e) {
+        } catch (TestUserServiceException e) {
 
         }
         checkLevelUpgraded(users.get(1), false);

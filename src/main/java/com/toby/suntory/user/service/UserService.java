@@ -4,14 +4,10 @@ import com.toby.suntory.user.dao.UserDao;
 import com.toby.suntory.user.domain.Level;
 import com.toby.suntory.user.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.List;
 
 @Component
@@ -23,10 +19,7 @@ public class UserService {
     private UserLevelUpgradePolicy userLevelUpgradePolicy;
 
     @Autowired
-    private DataSource dataSource;
-
-    public UserService() {
-    }
+    private PlatformTransactionManager transactionManager;
 
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
@@ -36,13 +29,11 @@ public class UserService {
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
     }
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
 
     public void upgradeLevels() {
-        PlatformTransactionManager transactionManager =
-                new DataSourceTransactionManager(dataSource);
         TransactionStatus status =
                 transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
