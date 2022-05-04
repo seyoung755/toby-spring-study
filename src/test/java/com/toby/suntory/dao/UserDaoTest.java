@@ -36,9 +36,9 @@ class UserDaoTest {
 
     @BeforeEach
     void setUp() {
-        user1 = new User("user1", "유저1", "pw1", Level.BASIC, 1, 0);
-        user2 = new User("user2", "유저2", "pw2", Level.SILVER, 55, 10);
-        user3 = new User("user3", "유저3", "pw3", Level.GOLD, 100, 40);
+        user1 = new User("user1", "유저1", "pw1", Level.BASIC, 1, 0, "test@naver.com");
+        user2 = new User("user2", "유저2", "pw2", Level.SILVER, 55, 10, "test@gmail.com");
+        user3 = new User("user3", "유저3", "pw3", Level.GOLD, 100, 40, "seyoung7555@naver.com");
         DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost:3306/toby", "suntory", "tksxhfl", true);
         dao = new UserDaoJdbc(dataSource);
     }
@@ -130,6 +130,7 @@ class UserDaoTest {
         assertThat(user1.getLevel()).isEqualTo(user2.getLevel());
         assertThat(user1.getLogin()).isEqualTo(user2.getLogin());
         assertThat(user1.getRecommend()).isEqualTo(user2.getRecommend());
+        assertThat(user1.getEmail()).isEqualTo(user2.getEmail());
     }
 
     @AfterEach
