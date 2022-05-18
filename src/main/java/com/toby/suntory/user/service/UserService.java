@@ -9,7 +9,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.List;
@@ -48,16 +47,20 @@ public class UserService {
         TransactionStatus status =
                 transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
-            List<User> users = userDao.getAll();
-            for (User user : users) {
-                if (canUpgradeLevel(user)) {
-                    upgradeLevel(user);
-                }
-            }
+            upgradeLevelsInternal();
             transactionManager.commit(status);
         } catch (RuntimeException e) {
             transactionManager.rollback(status);
             throw e;
+        }
+    }
+
+    private void upgradeLevelsInternal() {
+        List<User> users = userDao.getAll();
+        for (User user : users) {
+            if (canUpgradeLevel(user)) {
+                upgradeLevel(user);
+            }
         }
     }
 
@@ -86,20 +89,5 @@ public class UserService {
 
     private boolean canUpgradeLevel(User user) {
         return userLevelUpgradePolicy.canUpgradeLevel(user);
-    }
-
-
-    public void createUserListWithTrans() {
-        for (int i = 0; i < 10; i++) {
-            createUser(i);
-        }
-        throw new RuntimeException("에러 발생"); // 롤백이 발생하지만 createUser는 독립적인 트랜잭션이므로 괜찮을 것이라 생각
-    }
-
-
-    @Transactional
-    public void createUser(int index) {
-        User user = new User("test" + index, "박범진", "p1", Level.BASIC, 49, 0, "test@naver.com");
-        userDao.add(user);
     }
 }
