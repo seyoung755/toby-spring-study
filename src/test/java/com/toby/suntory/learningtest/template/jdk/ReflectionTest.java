@@ -3,6 +3,7 @@ package com.toby.suntory.learningtest.template.jdk;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +31,10 @@ class ReflectionTest {
         assertThat(hello.sayHi("Toby")).isEqualTo("Hi Toby");
         assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank You Toby");
 
-        Hello proxiedHello = new HelloUppercase(new HelloTarget());
+        Hello proxiedHello = (Hello) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{Hello.class},
+                new UppercaseHandler(new HelloTarget()));
         assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
         assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HI TOBY");
         assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
